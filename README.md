@@ -1,10 +1,11 @@
-# MaprangSTT ([`pythainlp/MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT)) — On-Device Thai & Dialect ASR
+# MaprangSTT
 
 **[`MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT)** (`whistle-thai-combined`) is a fine-tuned [Cactus Whistle](https://cactuscompute.com/blog/finetuning-whistle) automatic speech recognition (ASR) model for **Standard Thai and Regional Thai Dialects** (Central, Isan / Northeastern, Northern / Khummuang, Korat, Southern / Pattani, and Elderly speech).
 
 Trained on **1,022.78 hours (594,231 clips)** of curated Thai speech using quantization-aware LoRA (`CQ W4 STE + A8`) and an expanded Thai SentencePiece vocabulary, **MaprangSTT** compiles into a standalone **32.49 MB** `.cact` archive ready for fast on-device CPU/GPU/mobile inference.
 
 - **Hugging Face Repository**: [https://huggingface.co/pythainlp/MaprangSTT](https://huggingface.co/pythainlp/MaprangSTT)
+- **In-Browser Web Demo (`cactus-needle`)**: [`demo/index.html`](demo/index.html) (or [https://wannaphong.github.io/MaprangSTT/](https://wannaphong.github.io/whistle-thai/))
 
 ---
 
@@ -203,6 +204,41 @@ cactus whistle build \
     --out MaprangSTT-4L.cact
 ```
 
+### 4. In-Browser Web Demo & JavaScript/TypeScript (`cactus-needle`)
+
+You can run **`MaprangSTT`** (`maprang.cact`) directly in the browser or Node.js using [`afshinm/cactus-needle`](https://github.com/afshinm/cactus-needle) on CPU via WebAssembly workers (no server, API key, or GPU required).
+
+#### Run the Interactive Web Demo Locally (`demo/`)
+
+```bash
+python3 -m http.server 8000 --directory demo
+# Open http://localhost:8000 in your browser
+```
+
+The web demo in [`demo/`](demo/) loads [`https://huggingface.co/pythainlp/MaprangSTT/resolve/main/maprang.cact`](https://huggingface.co/pythainlp/MaprangSTT/resolve/main/maprang.cact), caches verified weights in `CacheStorage`, and supports:
+- Live **microphone recording** (with waveform level metering and optional silence auto-stop).
+- **Audio file upload / drag-and-drop** (`.wav`, `.mp3`, `.m4a`, `.ogg`, `.webm`, `.flac`, decoded and resampled to 16 kHz mono in the browser).
+- **Sample Thai speech clips** from Mozilla Common Voice (`th`) and Google FLEURS (`th_th`) with ground-truth reference transcripts and clickable word-level timestamps.
+
+#### JavaScript / TypeScript Usage (`cactus-needle`)
+
+```js
+import { createWhistle } from 'cactus-needle/browser';
+
+const whistle = await createWhistle({
+  model: 'https://huggingface.co/pythainlp/MaprangSTT/resolve/main/maprang.cact',
+});
+
+try {
+  const result = await whistle.transcribe(audioSamplesOrWavUrl, {
+    wordTimestamps: true,
+  });
+  console.log(result.text, result.words);
+} finally {
+  await whistle.close();
+}
+```
+
 ---
 
 ## How to Train
@@ -212,7 +248,7 @@ Follow these steps to reproduce the **`MaprangSTT`** (`whistle-thai-combined`) t
 ### 1. Clone the Repository & Install Dependencies
 
 ```bash
-git clone --recurse-submodules https://github.com/wannaphong/whistle-thai.git
+git clone --recurse-submodules https://github.com/wannaphong/MaprangSTT.git
 cd whistle-thai
 
 pip install -r requirements.txt
@@ -320,7 +356,7 @@ python3 evaluate_fleurs.py \
 
 ```bash
 # Clone with submodule for Thai Common Voice sentence fixes
-git clone --recurse-submodules https://github.com/wannaphong/whistle-thai.git
+git clone --recurse-submodules https://github.com/wannaphong/MaprangSTT.git
 cd whistle-thai
 pip install -r requirements.txt
 ```

@@ -224,6 +224,7 @@ __marimo__/
 *.tgz
 *.zip
 *.wav
+!docs/samples/*.wav
 *.mp3
 *.flac
 cv-corpus-*/

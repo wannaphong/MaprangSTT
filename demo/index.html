@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="MaprangSTT (pythainlp/MaprangSTT) in-browser Thai & Regional Dialect Speech-to-Text demo powered by cactus-needle and WebAssembly."
+    />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>MaprangSTT — In-Browser Thai Speech-to-Text Demo (cactus-needle)</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="https://huggingface.co/pythainlp/MaprangSTT">
+        <span class="brand-title">MaprangSTT</span>
+        <span class="brand-tag">32.5 MB W4A8 · On-Device Thai ASR</span>
+      </a>
+      <nav class="nav-links" aria-label="Project links">
+        <a href="https://huggingface.co/pythainlp/MaprangSTT" target="_blank" rel="noopener noreferrer">Hugging Face Model</a>
+        <a href="https://github.com/wannaphong/MaprangSTT" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+        <a href="https://github.com/afshinm/cactus-needle" target="_blank" rel="noopener noreferrer">cactus-needle</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>Thai &amp; Dialect Speech Recognition in Your Browser</h1>
+        <p>
+          Runs <a href="https://huggingface.co/pythainlp/MaprangSTT" target="_blank" rel="noopener noreferrer"><code>pythainlp/MaprangSTT</code></a>
+          (<code>maprang.cact</code>, 32.49 MB) locally on your CPU using
+          <a href="https://github.com/afshinm/cactus-needle" target="_blank" rel="noopener noreferrer"><code>cactus-needle</code></a>
+          WebAssembly workers. No server, API key, or GPU required—your audio never leaves your device.
+        </p>
+      </section>
+
+      <section class="model-bar" aria-label="Model status">
+        <div class="model-info">
+          <strong>Model:</strong>
+          <code>maprang.cact</code>
+          <span id="model-status-badge" class="badge" data-state="idle">
+            Not Loaded (32.5 MB download on first use)
+          </span>
+        </div>
+        <button id="load-model-btn" class="btn-secondary" type="button">
+          Preload Model (32.5 MB)
+        </button>
+        <div id="progress-container" class="progress-wrap" hidden>
+          <div class="progress-track">
+            <div id="progress-bar" class="progress-fill"></div>
+          </div>
+          <span id="progress-percent" class="progress-label">0%</span>
+        </div>
+      </section>
+
+      <section class="controls-grid" aria-label="Audio input methods">
+        <div class="card">
+          <div>
+            <h2 class="card-title">1. Record from Microphone</h2>
+            <p class="card-desc">
+              Speak Standard Thai or regional dialects (up to 30 seconds).
+            </p>
+          </div>
+          <button
+            id="record-btn"
+            class="btn-record"
+            type="button"
+            data-recording="false"
+            aria-pressed="false"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <rect x="9" y="2" width="6" height="13" rx="3" />
+              <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" />
+            </svg>
+            <span id="record-label">Record Microphone</span>
+          </button>
+        </div>
+
+        <div class="card">
+          <div>
+            <h2 class="card-title">2. Upload or Drop Audio File</h2>
+            <p class="card-desc">
+              Supports WAV, MP3, M4A, Ogg, WebM, or FLAC (decoded to 16 kHz mono in browser).
+            </p>
+          </div>
+          <label id="drop-zone" class="drop-zone" data-dragover="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span>Choose or drop an audio file…</span>
+            <input
+              id="audio-file-input"
+              type="file"
+              accept="audio/*,.wav,.mp3,.m4a,.ogg,.webm,.flac"
+            />
+          </label>
+        </div>
+      </section>
+
+      <div id="recording-meter" class="recording-meter" hidden>
+        <canvas id="recording-canvas" class="recording-canvas"></canvas>
+        <span id="recording-time" class="recording-time">0:00 / 0:30</span>
+      </div>
+
+      <section class="samples-section" aria-label="Sample Thai audio clips">
+        <span class="section-label">3. Or try an example Thai speech clip:</span>
+        <div id="sample-buttons" class="sample-buttons"></div>
+      </section>
+
+      <section class="options-bar" aria-label="Transcription settings">
+        <label class="option-item">
+          <span>Language:</span>
+          <select id="language-select" class="option-select">
+            <option value="th" selected>Thai (th)</option>
+            <option value="">Auto-detect</option>
+            <option value="en">English (en)</option>
+          </select>
+        </label>
+        <label class="option-item">
+          <input id="timestamps-checkbox" type="checkbox" checked />
+          <span>Word timestamps</span>
+        </label>
+        <label class="option-item">
+          <input id="remove-spaces-checkbox" type="checkbox" />
+          <span>Join Thai words (remove spaces)</span>
+        </label>
+        <label class="option-item">
+          <input id="auto-stop-checkbox" type="checkbox" />
+          <span>Auto-stop mic on silence</span>
+        </label>
+      </section>
+
+      <div id="audio-preview-box" class="audio-preview-box" hidden>
+        <span id="audio-source-label" class="audio-preview-meta">Audio</span>
+        <div class="audio-preview-controls">
+          <audio id="audio-player" controls preload="metadata"></audio>
+          <button id="retranscribe-btn" class="btn-secondary" type="button">
+            Re-transcribe
+          </button>
+        </div>
+      </div>
+
+      <p id="status-text" class="status-line" role="status">
+        Ready. Record from your microphone, upload an audio file, or pick a sample clip above.
+      </p>
+
+      <section class="output-panel" aria-label="Transcription result">
+        <div class="output-header">
+          <span>Transcription Output</span>
+          <button id="copy-btn" class="btn-secondary" type="button" disabled>
+            Copy Text
+          </button>
+        </div>
+        <textarea
+          id="transcript-output"
+          class="transcript-textarea"
+          placeholder="คำถอดเสียงภาษาไทยจะแสดงที่นี่… (Thai transcription will appear here)"
+          readonly
+        ></textarea>
+        <div id="reference-box" class="reference-box" hidden>
+          <span class="reference-label">Ground-Truth Reference:</span>
+          <span id="reference-text"></span>
+        </div>
+      </section>
+
+      <section id="stats-box" class="stats-grid" aria-label="Performance metrics" hidden>
+        <div class="stat-card">
+          <span class="stat-label">Audio Duration</span>
+          <span id="stat-duration" class="stat-value">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Inference Time</span>
+          <span id="stat-inference" class="stat-value">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Time to First Token</span>
+          <span id="stat-ttft" class="stat-value">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Decode Speed</span>
+          <span id="stat-tps" class="stat-value">—</span>
+        </div>
+      </section>
+
+      <section id="words-box" class="words-box" aria-label="Word-level timestamps" hidden>
+        <div class="words-header">
+          <strong>Word-Level Timestamps (click any word to seek audio)</strong>
+          <span>Dashed border = lower confidence</span>
+        </div>
+        <div id="words-list" class="words-list"></div>
+      </section>
+
+      <section class="code-section" aria-label="JavaScript integration example">
+        <h2>Use <code>MaprangSTT</code> in JavaScript / TypeScript with <code>cactus-needle</code></h2>
+        <pre><code>import { createWhistle } from 'cactus-needle/browser';
+
+const whistle = await createWhistle({
+  model: 'https://huggingface.co/pythainlp/MaprangSTT/resolve/main/maprang.cact',
+});
+
+const result = await whistle.transcribe(audioSamples, {
+  wordTimestamps: true,
+});
+console.log(result.text, result.words);</code></pre>
+      </section>
+
+      <noscript>
+        <p>Enable JavaScript to run the MaprangSTT WebAssembly model in your browser.</p>
+      </noscript>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Powered by
+        <a href="https://huggingface.co/pythainlp/MaprangSTT" target="_blank" rel="noopener noreferrer">PyThaiNLP MaprangSTT</a>,
+        <a href="https://github.com/afshinm/cactus-needle" target="_blank" rel="noopener noreferrer">cactus-needle</a>, and
+        <a href="https://www.cactuscompute.com/blog/finetuning-whistle" target="_blank" rel="noopener noreferrer">Cactus Whistle</a>.
+        100% client-side WebAssembly inference.
+      </p>
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
