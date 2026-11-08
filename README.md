@@ -205,6 +205,110 @@ cactus whistle build \
 
 ---
 
+## How to Train
+
+Follow these steps to reproduce the **`MaprangSTT`** (`whistle-thai-combined`) training pipeline or fine-tune on your own Thai dataset.
+
+### 1. Clone the Repository & Install Dependencies
+
+```bash
+git clone --recurse-submodules https://github.com/wannaphong/whistle-thai.git
+cd whistle-thai
+
+pip install -r requirements.txt
+pip install "cactus-compute[train]"
+```
+
+### 2. Download the Datasets
+
+1. **Mozilla Common Voice v27.0 (`th`)**:
+   - Download `common-voice-scripted-speech-27-0-thai-3aa1b7de.tar.gz` from [Mozilla Data Collective](https://mozilladatacollective.com/) (or set your API token in `download.sh` and run `bash download.sh`).
+   - Extract the archive into the repository root so `cv-corpus-27.0-2026-09-11/th/` exists:
+     ```bash
+     tar -xzf common-voice-scripted-speech-27-0-thai-3aa1b7de.tar.gz
+     ```
+2. **Hugging Face Speech Datasets**:
+   - [`google/fleurs`](https://huggingface.co/datasets/google/fleurs) (`th_th`) and [`typhoon-ai/thai-dialect-isan-dataset`](https://huggingface.co/datasets/typhoon-ai/thai-dialect-isan-dataset) are downloaded automatically during preprocessing.
+   - Pre-cache the Parquet shards for [`n-order/Thai-dialect-corpus`](https://huggingface.co/datasets/n-order/Thai-dialect-corpus) and [`huangjianbyte2024/thai_Elderly_Speech_dataset`](https://huggingface.co/datasets/huangjianbyte2024/thai_Elderly_Speech_dataset) into the local Hugging Face Hub cache:
+     ```bash
+     python3 -c '
+     from huggingface_hub import snapshot_download
+     snapshot_download("n-order/Thai-dialect-corpus", repo_type="dataset", allow_patterns=["**/*_train-*.parquet"])
+     snapshot_download("huangjianbyte2024/thai_Elderly_Speech_dataset", repo_type="dataset", allow_patterns=["**/train/*.parquet"])
+     '
+     ```
+
+### 3. Build the Thai Vocabulary (`tokens.txt`)
+
+`tokens.txt` (`2,067` tokens: `67` base Thai characters + top `2,000` Thai National Corpus words) is already included in the repository root. To regenerate it from scratch:
+
+```bash
+mkdir -p dataset_whistle
+python3 build_tnc_vocab.py
+```
+
+### 4. Prepare & Tokenize the Combined Dataset
+
+Run the dataset preparation scripts to normalize Thai text, apply [`thai_commonvoice_dataset`](https://github.com/wannaphong/thai_commonvoice_dataset) community fixes, convert numbers to spoken Thai words, segment words with `pythainlp` (`newmm`), and write `train.jsonl`, `validation.jsonl`, `test.jsonl`, and `tokens.txt` into `dataset_whistle_combined/`:
+
+```bash
+# Download and resample Typhoon Isan dataset (48 kHz -> 16 kHz mono WAV) + build combined JSONLs
+python3 prepare_combined_dataset.py
+python3 add_isan_dataset.py
+```
+
+*(Optional)* If you only want to train on **Mozilla Common Voice v27 (`validated.tsv`, `149.4` hours)** without the external Hugging Face datasets:
+```bash
+python3 prepare_full_dataset.py
+```
+
+### 5. Run Quantization-Aware LoRA Fine-Tuning & Build `.cact`
+
+Launch the 3-epoch training script (`batch_size=16`, `lr=1e-3`, LoRA `rank=16`, `alpha=32`, `W4A8` quantization):
+
+```bash
+bash run_finetune_combined.sh
+```
+
+Or run the `cactus whistle` CLI commands directly:
+
+```bash
+cd dataset_whistle_combined
+
+# 1. Fine-tune Whistle with expanded Thai vocabulary
+PYTHONUNBUFFERED=1 cactus whistle finetune \
+    train.jsonl \
+    validation.jsonl \
+    test.jsonl \
+    --language th \
+    --tokens tokens.txt \
+    --epochs 3 \
+    --batch-size 16 \
+    --lr 1e-3 \
+    --checkpoint-dir ../output_combined/checkpoints \
+    --out ../output_combined/adapter.safetensors
+
+# 2. Compile standalone quantized .cact archive (32.49 MB)
+cactus whistle build \
+    --lora ../output_combined/adapter.safetensors \
+    --out ../output_combined/maprang.cact
+```
+
+### 6. Evaluate the Trained Model
+
+```bash
+# Evaluate on Mozilla Common Voice v27 test set
+python3 evaluate_model.py \
+    --weights output_combined/maprang.cact \
+    --test-jsonl dataset_whistle_combined/test.jsonl
+
+# Evaluate on Google FLEURS (th_th) test set (1,021 clips)
+python3 evaluate_fleurs.py \
+    --weights output_combined/maprang.cact
+```
+
+---
+
 ## Repository Files ([`pythainlp/MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT))
 
 ### Hugging Face Model Artifacts ([`pythainlp/MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT))
