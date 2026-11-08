@@ -11,6 +11,8 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+!demo/cactus-needle/dist/
+!demo/cactus-needle/dist/**
 downloads/
 eggs/
 .eggs/
@@ -224,6 +226,7 @@ __marimo__/
 *.tgz
 *.zip
 *.wav
+!demo/samples/*.wav
 !docs/samples/*.wav
 *.mp3
 *.flac

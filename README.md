@@ -5,7 +5,7 @@
 Trained on **1,022.78 hours (594,231 clips)** of curated Thai speech using quantization-aware LoRA (`CQ W4 STE + A8`) and an expanded Thai SentencePiece vocabulary, **MaprangSTT** compiles into a standalone **32.49 MB** `.cact` archive ready for fast on-device CPU/GPU/mobile inference.
 
 - **Hugging Face Repository**: [https://huggingface.co/pythainlp/MaprangSTT](https://huggingface.co/pythainlp/MaprangSTT)
-- **In-Browser Web Demo (`cactus-needle`)**: [`demo/index.html`](demo/index.html) (or [https://wannaphong.github.io/MaprangSTT/](https://wannaphong.github.io/whistle-thai/))
+- **In-Browser Web Demo (`cactus-needle`)**: [`demo/index.html`](demo/index.html) (or [https://wannaphong.github.io/MaprangSTT/demo](https://wannaphong.github.io/MaprangSTT/demo))
 
 ---
 
