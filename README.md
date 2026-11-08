@@ -1,6 +1,6 @@
 # MaprangSTT
 
-**[`MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT)** (`whistle-thai-combined`) is a fine-tuned [Cactus Whistle](https://cactuscompute.com/blog/finetuning-whistle) automatic speech recognition (ASR) model for **Standard Thai and Regional Thai Dialects** (Central, Isan / Northeastern, Northern / Khummuang, Korat, Southern / Pattani, and Elderly speech).
+**[`MaprangSTT`](https://huggingface.co/pythainlp/MaprangSTT)** (มะปราง) is a fine-tuned [Cactus Whistle](https://cactuscompute.com/blog/finetuning-whistle) automatic speech recognition (ASR) model for **Standard Thai and Regional Thai Dialects** (Central, Isan / Northeastern, Northern / Khummuang, Korat, Southern / Pattani, and Elderly speech).
 
 Trained on **1,022.78 hours (594,231 clips)** of curated Thai speech using quantization-aware LoRA (`CQ W4 STE + A8`) and an expanded Thai SentencePiece vocabulary, **MaprangSTT** compiles into a standalone **32.49 MB** `.cact` archive ready for fast on-device CPU/GPU/mobile inference.
 
