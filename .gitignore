@@ -218,3 +218,29 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Datasets, audio archives, and extracted corpora
+*.tar.gz
+*.tgz
+*.zip
+*.wav
+*.mp3
+*.flac
+cv-corpus-*/
+fleurs_th/
+dataset_whistle/
+dataset_whistle_full/
+dataset_whistle_combined/
+
+# Model checkpoints, weights, and training outputs
+checkpoints/
+output/
+output_full/
+output_combined/
+*.cact
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.bin
+

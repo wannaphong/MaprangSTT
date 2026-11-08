@@ -1,0 +1,3 @@
+[submodule "thai_commonvoice_dataset"]
+	path = thai_commonvoice_dataset
+	url = https://github.com/wannaphong/thai_commonvoice_dataset.git
