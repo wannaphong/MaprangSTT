@@ -181,7 +181,7 @@ Hyp: ฉัน เช่นกัน ดังนั้น ฉัน พยา�
 
 1. **Thai Text Normalization & Cleaning**:
    - Normalized Thai character order and vowel sequences via `pythainlp.util.normalize` (including `ํา` $\rightarrow$ `ำ`).
-   - Applied community-verified transcript fixes from [`thai_commonvoice_dataset`](https://github.com/PyThaiNLP/thai_commonvoice_dataset) (`db-lastest.db` and `list_file.tsv`).
+   - Applied community-verified transcript fixes from [`thai_commonvoice_dataset`](https://github.com/wannaphong/thai_commonvoice_dataset) (`db-lastest.db` and `list_file.tsv`).
 2. **Number-to-Thai-Words Conversion**:
    - Converted both Thai digits (`๐-๙`) and Arabic digits (`0-9`), comma-formatted numbers, and decimals into spoken Thai words using `pythainlp.util.num_to_thaiword` and `pythainlp.util.digit_to_text`.
    - Filtered out any remaining clips containing non-Thai characters or exceeding 30 seconds.
@@ -313,7 +313,7 @@ pip install -r requirements.txt
 
 - **Model**: [PyThaiNLP — MaprangSTT (`https://huggingface.co/pythainlp/MaprangSTT`)](https://huggingface.co/pythainlp/MaprangSTT)
 - **Base Model & Framework**: [Cactus Compute — Finetuning Whistle](https://cactuscompute.com/blog/finetuning-whistle)
-- **NLP Preprocessing & Evaluation**: [PyThaiNLP](https://github.com/PyThaiNLP/pythainlp), [PyThaiASR](https://github.com/PyThaiNLP/pythaiasr), & [thai_commonvoice_dataset](https://github.com/PyThaiNLP/thai_commonvoice_dataset)
+- **NLP Preprocessing & Evaluation**: [PyThaiNLP](https://github.com/PyThaiNLP/pythainlp), [PyThaiASR](https://github.com/PyThaiNLP/pythaiasr), & [thai_commonvoice_dataset](https://github.com/wannaphong/thai_commonvoice_dataset)
 - **Speech Datasets**:
   - [Mozilla Common Voice](https://commonvoice.mozilla.org/)
   - [Google FLEURS (`google/fleurs`)](https://huggingface.co/datasets/google/fleurs)
